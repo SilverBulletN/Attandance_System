@@ -25,7 +25,7 @@ func NewStudentUsecase(studentRepository repository.StudentRepository) StudentUs
 
 type StudentInfo struct {
 	StudentID   int    `json:"student_id"`
-	Name string `json:"name"`
+	Name		string `json:"name"`
 	Email       string `json:"email"`
 	Sex         string `json:"sex"`
 	Religion    string `json:"religion"`
@@ -51,7 +51,7 @@ func (u *studentUsecaseImpl) GetStudent(studentID int) (*StudentInfo, error) {
 	}
 	return &StudentInfo{
 		StudentID:   students[0].StudentID,
-		Name: students[0].Name,
+		Name: 		students[0].Name,
 		Email:       students[0].Email,
 		Sex:         students[0].Sex,
 		Religion:    students[0].Religion,
@@ -122,6 +122,7 @@ func (u *studentUsecaseImpl) GetAllStudents() ([]*StudentInfo, error) {
 	for _, student := range students {
 		studentInfos = append(studentInfos, &StudentInfo{
 			StudentID:   student.StudentID,
+			Name:        student.Name,
 			Email:       student.Email,
 			Sex:         student.Sex,
 			Religion:    student.Religion,
