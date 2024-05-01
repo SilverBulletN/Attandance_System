@@ -1,6 +1,6 @@
 import { lazy } from "react";
 
-const AttandanceInfo = lazy(() => import("../pages/AttendeeList"));
+const AttandanceInfo = lazy(() => import("../pages/Checkin"));
 const SeatingPosition = lazy(() => import("../pages/SeatingPosition"));
 const TotalDelegates = lazy(() => import("../pages/TotalDelegates"));
 

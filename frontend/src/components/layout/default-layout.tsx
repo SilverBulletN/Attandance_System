@@ -36,6 +36,13 @@ const DefaultLayout = () => {
         >
           Total
         </Link>
+        <Link
+          to="/list"
+          style={buttonStyle}
+          className="text-white font-bold py-2 px-4 transition duration-150 ease-in-out hover:brightness-125"
+        >
+          List
+        </Link>
       </nav>
       <main>
         <Outlet />
