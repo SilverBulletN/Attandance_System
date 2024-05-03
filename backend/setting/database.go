@@ -4,8 +4,9 @@ import (
 	"attendance_congress/model"
 	"fmt"
 	"os"
+	"strconv"
 
-	//"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,7 +38,7 @@ func InitDB() {
 	}
 
 	migrateDB()
-	//initData()
+	initData()
 }
 
 // migrateDB will create table of all models in database by autoMigrate from Gorm
@@ -49,61 +50,45 @@ func migrateDB() {
 }
 
 // initData will initial data if there is not record in db
-// func initData() {
-// 	dataPathFile := os.Getenv("STUDENT_DATA_PATH")
-// 	studentsDataFile, err := xlsx.OpenFile(dataPathFile)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func initData() {
+	dataPathFile := os.Getenv("STUDENT_DATA_PATH")
+	studentsDataFile, err := xlsx.OpenFile(dataPathFile)
+	if err != nil {
+		panic(err)
+	}
 
-// 	sheet := studentsDataFile.Sheets[0]
+	sheet := studentsDataFile.Sheets[0]
 
-// 	for _, row := range sheet.Rows[1:] {
+	for _, row := range sheet.Rows[1:] {
 
-// 		studentID := row.Cells[1].String()
-// 		// fmt.Print(studentIDString)
-// 		// studentID, err := strconv.Atoi(studentIDString)
-// 		if err != nil {
-// 			fmt.Println("Error converting student ID:", err) // Add logging
-// 			panic(err)
-// 		}
+		studentIDString := row.Cells[1].String()
+		// fmt.Print(studentIDString)
+		studentID, err := strconv.Atoi(studentIDString)
+		if err != nil {
+			fmt.Println("Error converting student ID:", err) // Add logging
+			panic(err)
+		}
+		typeFalse := false
+		student := model.Student{
+			Id:          studentID,
+			StudentID: studentID,
+			Name:        row.Cells[0].String(),
+			Email:       row.Cells[2].String(),
+			Sex:         row.Cells[3].String(),
+			Nation:      row.Cells[4].String(),
+			Religion:    row.Cells[5].String(),
+			PhoneNumber: row.Cells[8].String(),
+			Class:       row.Cells[12].String(),
+			Position:    row.Cells[14].String(),
+			TypeDegate:  row.Cells[15].String(),
 
-// 		student := model.Student{
-// 			ID:     studentID,
-// 			Name:   row.Cells[0].String(),
-// 			School: row.Cells[2].String(),
-// 			// IsComittee:      row.Cells[4].String() == "Ban tổ chức",
-// 			IsCheckin:       false,
-// 			IsCheckout:      false,
-// 			IsLuckyAttendee: false,
-// 		}
+			// IsComittee:      row.Cells[4].String() == "Ban tổ chức",
+			Checkin:  &typeFalse,
+			Checkout: &typeFalse,
+		}
 
-// 		if err = db.Save(&student).Error; err != nil {
-// 			continue
-// 		}
-// 	}
-
-// 	blackListPath := os.Getenv("BLACK_LIST_PATH")
-// 	blackListFile, err := xlsx.OpenFile(blackListPath)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	sheet = blackListFile.Sheets[0]
-// 	for _, row := range sheet.Rows[1:] {
-
-// 		studentID := row.Cells[0].String()
-// 		// fmt.Print(studentIDString)
-// 		// studentID, err := strconv.Atoi(studentIDString)
-
-// 		var student model.Student
-// 		if err = db.First(&student, studentID).Error; err != nil {
-// 			continue
-// 		}
-// 		student.IsComittee = true
-
-// 		if err = db.Save(&student).Error; err != nil {
-// 			continue
-// 		}
-// 	}
-// }
+		if err = db.Save(&student).Error; err != nil {
+			continue
+		}
+	}
+}

@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  react-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:3000"
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - golang-app
+    # volumes:
+    #   - ./client/nginx-config/nginx.conf:/etc/nginx/nginx.conf
+
+  db:
+    image: postgres:16-alpine
+    # volumes:
+    #   - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cse@123
+      POSTGRES_DB: attendancejf
+    ports:
+      - "5432:5432"
+
+
+  golang-app:
+    container_name: golang-app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:  
+      - "8080:8080"
+    volumes:
+      - ./backend/setting/daibieu.xlsx:/app/daibieu.xlsx
+    environment:
+      - DB_HOSTNAME=db
+      - DB_USERNAME=postgres
+      - DB_PORT=5432
+      - DB_NAME=attendance-congress
+      - DB_PASSWORD=cse@123
+      - STUDENT_DATA_PATH=/app/daibieu.xlsx
+      - DOMAIN=http://csejf.tuoitrebachkhoa.edu.vn
+    depends_on:
+      - db # Đảm bảo rằng dịch vụ PostgreSQL được khởi động trước khi ứng dụng Golang bắt đầu chạy
+    command: ["/main"]
+    # env_file:
+    #   - server/.env
+      
