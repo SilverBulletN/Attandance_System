@@ -1,7 +1,10 @@
-import React from "react";
 import backgroundImage from "../../assets/table_background.png"; // Ensure this path is correct
+import { Attendee } from "@/types/types";
+type AttendeeTableProps = {
+  attendees: Attendee[];
+};
 
-const AttendeeTable = ({ attendees }) => {
+const AttendeeTable: React.FC<AttendeeTableProps> = ({ attendees }) => {
   return (
     <div
       className="overflow-x-auto relative sm:rounded-lg mt-20 pt-12 px-2"
@@ -12,23 +15,7 @@ const AttendeeTable = ({ attendees }) => {
         width: "500px",
       }}
     >
-      <table
-        className="text-sm text-left text-gray-500 rounded-lg overflow-hidden"
-        // style={{ width: "600px" }}
-      >
-        {/* <thead
-          className="text-xs text-white uppercase"
-          style={{ backgroundColor: "rgba(0, 87, 183, 0.8)" }}
-        >
-          <tr>
-            <th scope="col" className="py-3 px-4 rounded-tl-lg">
-              HỌ VÀ TÊN
-            </th>
-            <th scope="col" className="py-3 px-4 rounded-tr-lg">
-              MSSV
-            </th>
-          </tr>
-        </thead> */}
+      <table className="text-sm text-left text-gray-500 rounded-lg overflow-hidden">
         <tbody
           style={{ minHeight: "400px", color: "#1961ad" }}
           className="pt-4"

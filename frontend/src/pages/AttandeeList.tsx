@@ -129,7 +129,7 @@ const AttendeeList: React.FC = () => {
             />
           ) : (
             // Display this CardDetail if there are no attendees
-            <CardDetail name={""} id={""} classGroup={""}  />
+            <CardDetail name={""} id={""} classGroup={""} />
           )}
         </div>
       </div>
@@ -147,12 +147,14 @@ const AttendeeList: React.FC = () => {
           />
         </div>
 
-        <table className="w-full bg-white rounded-lg  text-center table-fixed border-collapse border border-gray-300">
+        <table className="w-full bg-white rounded-lg text-center table-fixed border-collapse border border-gray-300">
           <thead className="bg-gray-200" style={{ backgroundColor: "#429fcd" }}>
             <tr>
               <th className="w-2/12 py-2">No.</th>
-              <th className="w-5/12 py-2">Name</th>
-              <th className="w-3/12 py-2">ID</th>
+              <th className="w-4/12 py-2">Name</th>
+              <th className="w-2/12 py-2">ID</th>
+              <th className="w-2/12 py-2">Class</th>
+              {/* <th className="w-2/12 py-2">Gender</th> */}
               <th className="w-2/12 py-2">Details</th>
             </tr>
           </thead>
@@ -166,8 +168,14 @@ const AttendeeList: React.FC = () => {
                   {attendee.name}
                 </td>
                 <td className="border border-gray-300 rounded-lg py-1">
-                  {attendee.student_id.toString()}
+                  {attendee.student_id}
                 </td>
+                <td className="border border-gray-300 rounded-lg py-1">
+                  {attendee.class}
+                </td>
+                {/* <td className="border border-gray-300 rounded-lg py-1">
+                  {attendee.sex}
+                </td> */}
                 <td className="border border-gray-300 rounded-lg py-2">
                   <button
                     className="text-blue-500 hover:text-blue-700"
