@@ -4,35 +4,31 @@ import Info from "./pages/Checkin";
 import Total from "./pages/TotalDelegates";
 import List from "./pages/AttandeeList";
 import routes from "./routes";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route element={<DefaultLayout />}>
-          <Route path="/" element={<Info />} />
-          <Route path="/total" element={<Total />} />
-          <Route path="/list" element={<List />} />
-          {routes.map((route, index) => {
-            const { path, component: Component } = route;
-            return (
-              <>
-                <Route
-                  key={index}
-                  path={path}
-                  element={
-                    <Suspense>
-                      <Component />
-                    </Suspense>
-                  }
-                />
-              </>
-            );
-          })}
-        </Route>
-      </Routes>
-    </>
+    <Routes>
+      <Route element={<DefaultLayout />}>
+        <Route path="/" element={<Info />} />
+        <Route path="/total" element={<Total />} />
+        <Route path="/list" element={<List />} />
+        {routes.map((route) => {
+          const { path, component: Component } = route;
+          return (
+            <Route
+              key={path} 
+              path={path}
+              element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Component />
+                </Suspense>
+              }
+            />
+          );
+        })}
+      </Route>
+    </Routes>
   );
 }
 

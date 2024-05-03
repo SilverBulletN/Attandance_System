@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import backgroundImage from "../../assets/background.png"; // Ensure this path is correct
 import frameImage from "../../assets/frame.png"; // Ensure this path is correct

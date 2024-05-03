@@ -1,144 +1,89 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import CardDetail from "../components/layout/cardDetail";
 import AttendeeCard from "../components/layout/attendeeCard";
 import logo from "../assets/logo.png";
 import axios from "axios";
 import tableAttandees from "../assets/table_attendees.png";
 import frame from "../assets/frameButton.png";
+import { Attendee } from "@/types/types";
 
-// Import any necessary components from shadcn/ui if needed, replace with actual imports
-// import { CustomCard, CustomButton } from 'shadcn/ui';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Mock data for attendees
 
-const AttendeeList = () => {
-  const [attendees, setAttendees] = useState([]);
-  const [fullAttendees, setfullAttendees] = useState([]);
+const Checkin = () => {
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
+  const [fullAttendees, setFullAttendees] = useState<Attendee[]>([]);
+
   const [inputId, setInputId] = useState("");
 
   // Fetch initial state when component mounts
   useEffect(() => {
-    const fetchInitialState = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8080/api/students/get-init-state"
-        );
-        setAttendees(response.data.data.student_info); // Assuming the response data is the list of attendees
+        const [initialStateResponse, allStudentsResponse] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/students/get-init-state`),
+          axios.get(`${API_BASE_URL}/api/students/get-all-students`),
+        ]);
+        setAttendees(initialStateResponse.data.data.student_info);
+        setFullAttendees(allStudentsResponse.data.data);
       } catch (error) {
-        console.error("Error fetching initial state:", error);
-      }
-    };
-    const fetchAllStudents = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8080/api/students/get-all-students"
-        );
-        setfullAttendees(response.data.data); // Assuming the response data is the list of attendees
-      } catch (error) {
-        console.error("Error fetching initial state:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchInitialState();
-    fetchAllStudents();
-
-    // Setup WebSocket connection after fetching initial state
-    const webSocket = new WebSocket("ws://localhost:8080/api/students/ws");
-
-    webSocket.onmessage = (event) => {
-      // Assuming the message event data is the new attendee object
-      // const newAttendee = JSON.parse(event.data);
-      // setAttendees((prevAttendees) => [...prevAttendees, newAttendee]);
-    };
-
-    webSocket.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    webSocket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    webSocket.onclose = () => {
-      console.log("WebSocket Disconnected");
-    };
-
-    // Clean up the WebSocket connection when the component unmounts
-    return () => {
-      webSocket.close();
-    };
+    fetchData();
   }, []);
 
-  const handleCheckOut = (attendeeId) => {
-    // setAttendees(
-    //   attendees.filter((attendee) => attendee.student_id !== attendeeId)
-    // );
-    const requestBody = {
-      student_id: parseInt(attendeeId),
-    };
+  // const handleCheckOut = async (attendeeId: bigint) => {
+  //   try {
+  //     await axios.put(`${API_BASE_URL}/api/students/checkin-out`, {
+  //       student_id: attendeeId.toString(),
+  //     });
+  //     console.log(`${attendeeId.toString()} Checked-out`);
+  //     setAttendees((prev) => prev.filter((a) => a.student_id !== attendeeId));
+  //   } catch (error) {
+  //     console.error("Error checking in/out:", error);
+  //   }
+  // };
 
-    axios
-      .put("http://localhost:8080/api/students/checkin-out", requestBody)
-      .then(() => {
-        console.log(attendeeId, " Check-out");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    // console log status checkout of attendee with id
-    const attendee = attendees.find(
-      (attendee) => attendee.student_id === attendeeId
-    );
-    if (attendee) {
-      console.log(attendee.checkout ? "Checked Out" : "Not Checked Out");
-    } else {
-      console.log("Attendee Not Found");
-    }
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputId(event.target.value);
   };
 
-  const handleInputChange = (event) => {
-    setInputId(event.target.value); // Update the inputId state as the user types
-  };
-
-  const handleFormSubmit = (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     fetchAndAddAttendee();
   };
 
   const fetchAndAddAttendee = () => {
+    // Convert inputId to BigInt and then to String for serialization
     const requestBody = {
       student_id: parseInt(inputId),
     };
 
     axios
-      .put("http://localhost:8080/api/students/checkin-out", requestBody)
+      .put(`${API_BASE_URL}/api/students/checkin-out`, requestBody)
       .then((response) => {
-        // Handle the response here. If the response contains the new attendee data, use it:
-        // if status is 200, search infomation in fullAttendees
         if (response.status === 200) {
           // Use find to get the single attendee with the matching student_id
+          // const studentIdInt = parseInt(inputId);
+          // console.log(fullAttendees);
           const newAttendee = fullAttendees.find(
-            (attendee) => attendee.student_id === parseInt(inputId)
+            (attendee) => attendee.student_id == inputId
           );
           if (newAttendee) {
-            // Log the found attendee (for debugging purposes, can be removed in production)
-            console.log(newAttendee);
-            // Add the new attendee to the existing list
             setAttendees((prevAttendees) => {
-              // Remove any existing attendee that matches the newAttendee's id
               const filteredAttendees = prevAttendees.filter(
-                (attendee) => attendee.student_id !== newAttendee.student_id
+                (attendee) => attendee.student_id != inputId
               );
-
-              // Return the new array with the newAttendee added to the end
               return [...filteredAttendees, newAttendee];
             });
+            console.log(newAttendee);
           } else {
-            // Log a message or handle the case where no attendee was found
             console.log(`No attendee found with student_id ${inputId}`);
           }
         } else {
-          // Handle any status codes other than 200
           console.log("Request did not succeed:", response.status);
         }
       })
@@ -172,15 +117,11 @@ const AttendeeList = () => {
             <CardDetail
               name={attendees[attendees.length - 1].name}
               id={attendees[attendees.length - 1].student_id}
-              group={""}
-              // isCheckedOut={attendees[attendees.length - 1].checkout}
-              onCheckOut={() =>
-                handleCheckOut(attendees[attendees.length - 1].student_id)
-              }
+              classGroup={attendees[attendees.length - 1].class}
             />
           ) : (
             // Display this CardDetail if there are no attendees
-            <CardDetail name={""} id={""} group={""} onCheckOut={() => {}} />
+            <CardDetail name={""} id={""} classGroup={""} />
           )}
         </div>
         {/* Empty space filler */}
@@ -261,9 +202,9 @@ const AttendeeList = () => {
                   key={attendee.student_id}
                   id={attendee.student_id}
                   name={attendee.name}
-                  group={attendee.group}
-                  isCheckOut={attendee.checkout}
-                  onCheckOut={handleCheckOut}
+                  // class={attendee.class}
+                  // isCheckOut={attendee.checkout}
+                  // onCheckOut={handleCheckOut}
                 />
               ))}
 
@@ -282,4 +223,4 @@ const AttendeeList = () => {
   );
 };
 
-export default AttendeeList;
+export default Checkin;

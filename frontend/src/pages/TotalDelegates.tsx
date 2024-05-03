@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from "react";
-import CardDetail from "../components/layout/cardDetail";
-import AttendeeCard from "../components/layout/attendeeCard";
+import { useEffect, useState } from "react";
 import TotalCard from "../components/layout/totalCard";
 import AttendeeTable from "@/components/layout/attendeeTable";
 import logo from "../assets/logo.png";
 import axios from "axios";
+import { Attendee } from "@/types/types";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
 
 const TotalDelegates = () => {
-  const [attendees, setAttendees] = useState([]);
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
 
   // Fetch initial state when component mounts
   useEffect(() => {
     const fetchInitialState = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/students/get-init-state"
+          `${API_BASE_URL}/api/students/get-init-state`
         );
-        setAttendees(response.data.data.student_info); // Assuming the response data is the list of attendees
+        const attendeesData: Attendee[] = response.data.data.student_info;
+        setAttendees(attendeesData);
       } catch (error) {
         console.error("Error fetching initial state:", error);
       }
@@ -25,7 +27,8 @@ const TotalDelegates = () => {
     fetchInitialState();
 
     // Setup WebSocket connection after fetching initial state
-    const webSocket = new WebSocket("ws://localhost:8080/api/students/ws");
+    // const webSocket = new WebSocket("ws://localhost:8080/api/students/ws");
+    const webSocket = new WebSocket(`${WS_BASE_URL}/api/students/ws`);
 
     webSocket.onmessage = (event) => {
       console.log("WebSocket Message:", event.data);
@@ -34,7 +37,7 @@ const TotalDelegates = () => {
       const data = JSON.parse(event.data);
 
       // Extract student_info as newAttendee
-      const newAttendee = data.student_info;
+      const newAttendee: Attendee = data.student_info;
 
       setAttendees((prevAttendees) => {
         // Remove any existing attendee that matches the newAttendee's student_id

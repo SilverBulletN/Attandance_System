@@ -1,5 +1,10 @@
 import buttonImage from "../../assets/button.png";
-const AttendeeCard = ({ id, name, group, isCheckOut, onCheckOut }) => {
+type AttendeeCardProps = {
+  id: string; 
+  name: string;
+};
+
+const AttendeeCard: React.FC<AttendeeCardProps> = ({ id, name }) => {
   return (
     <div className="flex items-center justify-between p-3">
       <div className="flex flex-col">

@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import CardDetail from "../components/layout/cardDetail";
-import AttendeeCard from "../components/layout/attendeeCard";
-import TotalCard from "../components/layout/totalCard";
 import logo from "../assets/logo.png";
 import axios from "axios";
+import { Attendee } from "@/types/types";
 
-const AttandeeList = () => {
-  const [attendees, setAttendees] = useState([]);
-  const [chosenAttendee, setChosenAttendee] = useState(null); // If no attendee is chosen initially
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
+
+const AttendeeList: React.FC = () => {
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
+  const [chosenAttendee, setChosenAttendee] = useState<Attendee | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const attendeesPerPage = 10; // Fixed number of attendees per page
@@ -17,7 +19,7 @@ const AttandeeList = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
@@ -32,9 +34,8 @@ const AttandeeList = () => {
     indexOfLastAttendee
   );
 
-  const chooseAttendee = (attendee) => {
+  const chooseAttendee = (attendee: Attendee) => {
     setChosenAttendee(attendee);
-    console.log(attendee);
   };
 
   // Fetch initial state when component mounts
@@ -42,7 +43,7 @@ const AttandeeList = () => {
     const fetchInitialState = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/students/get-init-state"
+          `${API_BASE_URL}/api/students/get-init-state`
         );
         setAttendees(response.data.data.student_info); // Assuming the response data is the list of attendees
       } catch (error) {
@@ -53,7 +54,7 @@ const AttandeeList = () => {
     fetchInitialState();
 
     // Setup WebSocket connection after fetching initial state
-    const webSocket = new WebSocket("ws://localhost:8080/api/students/ws");
+    const webSocket = new WebSocket(`${WS_BASE_URL}/api/students/ws`);
 
     webSocket.onmessage = (event) => {
       console.log("WebSocket Message:", event.data);
@@ -122,13 +123,13 @@ const AttandeeList = () => {
             <CardDetail
               name={chosenAttendee.name}
               id={chosenAttendee.student_id}
-              group={chosenAttendee.group}
+              classGroup={chosenAttendee.class}
               // isCheckedOut={attendees[attendees.length - 1].checkout}
-              onCheckOut={() => {}}
+              // onCheckOut={() => {}}
             />
           ) : (
             // Display this CardDetail if there are no attendees
-            <CardDetail name={""} id={""} group={""} onCheckOut={() => {}} />
+            <CardDetail name={""} id={""} classGroup={""}  />
           )}
         </div>
       </div>
@@ -165,7 +166,7 @@ const AttandeeList = () => {
                   {attendee.name}
                 </td>
                 <td className="border border-gray-300 rounded-lg py-1">
-                  {attendee.student_id}
+                  {attendee.student_id.toString()}
                 </td>
                 <td className="border border-gray-300 rounded-lg py-2">
                   <button
@@ -226,4 +227,4 @@ const AttandeeList = () => {
   );
 };
 
-export default AttandeeList;
+export default AttendeeList;

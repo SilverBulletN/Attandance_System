@@ -1,7 +1,9 @@
-import React from "react";
+// import React from "react";
 import frame from "../../assets/frame.png";
-
-const TotalCard = ({ count }) => {
+type TotalCardProps = {
+  count: number; // Specifying that count is a number
+};
+const TotalCard: React.FC<TotalCardProps> = ({ count }) => {
   // Define the fixed height
   const height = 250;
   // Calculate the width based on the aspect ratio
